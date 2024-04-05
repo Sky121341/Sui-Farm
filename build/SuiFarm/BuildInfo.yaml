@@ -1,0 +1,25 @@
+---
+compiled_package_info:
+  package_name: SuiFarm
+  address_alias_instantiation:
+    std: "0000000000000000000000000000000000000000000000000000000000000001"
+    sui: "0000000000000000000000000000000000000000000000000000000000000002"
+    suifarm: "0000000000000000000000000000000000000000000000000000000000000000"
+  source_digest: 7E5B63F063FA30A6A3C6AA06B47831785EA4C5BBE4288E7B43E473D5D258AD43
+  build_flags:
+    dev_mode: false
+    test_mode: false
+    generate_docs: false
+    generate_abis: false
+    install_dir: ~
+    force_recompilation: false
+    lock_file: "./Move.lock"
+    additional_named_addresses: {}
+    fetch_deps_only: false
+    skip_fetch_latest_git_deps: false
+    default_flavor: sui
+    default_edition: ~
+    deps_as_root: false
+dependencies:
+  - MoveStdlib
+  - Sui
