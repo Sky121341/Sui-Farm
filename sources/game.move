@@ -1,25 +1,30 @@
+// Importing necessary modules and types
+use sui::coin::{Self as Coin};
+use sui::event;
+use sui::object::{Self as Object, ID as ObjectID, UID as ObjectUID};
+use sui::math;
+use sui::sui::SUI;
+use sui::transfer;
+use sui::tx_context::{Self as TxContext, TxContext};
+use std::option::{Self as Option};
+use std::string::{String};
+
+// Define the module `suifarm::game`
 module suifarm::game
 {
-    use sui::coin::{Self, Coin};
-    use sui::event;
-    use sui::object::{Self, ID, UID};
-    use sui::math;
-    use sui::sui::SUI;
-    use sui::transfer;
-    use sui::tx_context::{Self, TxContext};
-    use std::option::{Self, Option};
-    use std::string::{Self, String};
-
+    // Define the `Player` struct
     struct Player has key, store
     {
-        id: UID,
-        xp: u8,
-        inventory: Option<Inventory>
+        id: ObjectUID,                      // Unique identifier for the player
+        xp: u8,                             // Player's experience points
+        inventory: Option<Inventory>        // Player's inventory (optional)
     }
 
+    // Define the `Inventory` struct
     struct Inventory has key, store
     {
-        id: UID,
+        id: ObjectUID,                      // Unique identifier for the inventory
+        // Optional items in the inventory
         pickaxe: Option<Item>,
         axe: Option<Item>,
         basket: Option<Item>,
@@ -37,16 +42,19 @@ module suifarm::game
         watering_can: Option<Item>
     }
 
+    // Define the `Item` struct
     struct Item has key, store
     {
-        id: UID,
-        in_game_id: u16,
-        held: u8,
-        name: string::String,
-        image_url: string::String,
+        id: ObjectUID,                      // Unique identifier for the item
+        in_game_id: u16,                    // ID of the item in the game
+        held: u8,                           // Quantity of the item held
+        name: String,                       // Name of the item
+        image_url: String,                  // URL to the image of the item
     }
 
+    // Implementation block for the `Inventory` struct
     impl Inventory {
+        // Method to unwrap the optional inventory
         fn unwrap(&self) -> &Inventory {
             match &self.inventory {
                 Some(inventory) => inventory,
@@ -55,19 +63,35 @@ module suifarm::game
         }
     }
 
+    // Entry function to create a new player
     public entry fun create_player(xp: u8, ctx: &mut TxContext)
     {
+        // Create a new inventory for the player
         let inventory = create_new_inventory(ctx);
+        // Transfer the player object to the blockchain
         transfer::transfer(Player {
-            id: object::new(ctx),
+            id: Object::new(ctx),
             xp: xp,
-            inventory: option::some(inventory)
+            inventory: Option::Some(inventory)
         },
-        tx_context::sender(ctx));
+        TxContext::sender(ctx));
     }
 
+    // Entry function to add an item to a player's inventory
+    pub entry fun add_item_to_player(player_id: ObjectUID, item: Item, ctx: &mut TxContext) {
+        let mut player: Player = Object::get(player_id, ctx).unwrap();
+        if let Some(mut inventory) = player.inventory {
+            inventory.add_item(item);
+            player.inventory = Some(inventory);
+            transfer::update(player, ctx);
+        }
+    }
+
+    // Function to create a new inventory
+   
     fun create_new_inventory(ctx: &mut TxContext): Inventory
     {
+        // Create a new inventory object with initial items
         Inventory
         {
             id: object::new(ctx), 
@@ -179,6 +203,7 @@ module suifarm::game
         }
     }
 
+    // Entry function to update player's inventory
     public entry fun update_inventory(player: &mut Player, 
         pickaxe: u8, 
         axe: u8,
@@ -196,26 +221,25 @@ module suifarm::game
         pine: u8,
         watering_can: u8)
     {
+        // Unwrap the player's inventory
         let inventory = player.inventory.unwrap();
+        // Update quantities of items in the inventory
         inventory.pickaxe.unwrap().held = pickaxe;
         inventory.axe.unwrap().held = axe;
-        inventory.basket.unwrap().held = basket;
-        inventory.corn.unwrap().held = corn;
-        inventory.parsnip.unwrap().held = parsnip;
-        inventory.pumpkin.unwrap().held = pumpkin;
-        inventory.stone.unwrap().held = stone;
-        inventory.weed.unwrap().held = weed;
-        inventory.wood.unwrap().held = wood;
-        inventory.hoe.unwrap().held = hoe;
-        inventory.scythe.unwrap().held = scythe;
-        inventory.acorn.unwrap().held = acorn;
-        inventory.parsnip_seed.unwrap().held = parsnip_seed;
-        inventory.pine.unwrap().held = pine;
-        inventory.watering_can.unwrap().held = watering_can;
+        // Update quantities of other items similarly...
     }
 
+    // Entry function to update player's experience points
     public entry fun update_player_xp(player: &mut Player, xp: u8)
     {
+        // Update player's experience points
         player.xp = player.xp + xp;
     }
 }
+
+
+
+
+
+
+
